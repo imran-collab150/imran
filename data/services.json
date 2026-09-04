@@ -1,0 +1,23 @@
+[
+  {
+    "id": "haircut",
+    "name": "Standard Haircut",
+    "price": 25,
+    "duration": 30,
+    "description": "Classic men's haircut with scissors and comb for a clean, tailored look."
+  },
+  {
+    "id": "beard",
+    "name": "Beard Trim",
+    "price": 15,
+    "duration": 15,
+    "description": "Precision beard shaping and trimming for a sharp, well-groomed appearance."
+  },
+  {
+    "id": "combo",
+    "name": "Haircut + Beard",
+    "price": 35,
+    "duration": 45,
+    "description": "Complete grooming package — full haircut followed by detailed beard care."
+  }
+]

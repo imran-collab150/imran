@@ -1,0 +1,8 @@
+{
+  "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+  "dayNames": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "openHour": 9,
+  "closeHour": 18,
+  "slotIntervalMinutes": 30,
+  "weeksAhead": 2
+}

@@ -1,0 +1,17 @@
+# OS files
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build
+*.log

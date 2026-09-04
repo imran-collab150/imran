@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Appointment - Imran's Barber Shop</title>
+  <meta name="description" content="Book your barber appointment online. Choose a service, select a time slot, and confirm your details.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header>
+    <div class="container header-inner">
+      <div class="logo">IMRAN'S BARBER SHOP</div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="book.html" class="text-accent">Book Now</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="booking-container">
+
+        <a href="index.html" class="back-link">&larr; Back to Home</a>
+
+        <div class="section-title">
+          <span class="label">Booking</span>
+          <h2>Book Your Appointment</h2>
+          <p class="subtitle">Select a service, pick a time, and confirm your details.</p>
+        </div>
+
+        <form id="booking-form" method="POST" novalidate>
+          <!-- FormSubmit hidden fields -->
+          <input type="hidden" name="_next" value="thank-you.html">
+          <input type="hidden" name="_subject" value="New Barber Shop Booking">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="service" id="form-service-name">
+          <input type="hidden" name="time_slot" id="form-time-slot">
+
+          <!-- Step Indicator -->
+          <div class="step-indicator">
+            <div class="step active" id="step1-indicator">
+              <span class="step-number">1</span>
+              <span class="step-label">Service</span>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step" id="step2-indicator">
+              <span class="step-number">2</span>
+              <span class="step-label">Date &amp; Time</span>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step" id="step3-indicator">
+              <span class="step-number">3</span>
+              <span class="step-label">Details</span>
+            </div>
+          </div>
+
+          <!-- Step 1: Service Selection -->
+          <div class="form-step" id="step-services">
+            <h3>Choose a Service</h3>
+            <p class="text-muted" style="margin-bottom: 1.5rem; font-size: 0.95rem;">
+              Select the service you'd like to book.
+            </p>
+            <div id="services-container" class="services-grid"></div>
+          </div>
+
+          <!-- Step 2: Date & Time Selection -->
+          <div class="form-step hidden" id="step-datetime">
+            <h3>Select Date &amp; Time</h3>
+
+            <div id="selected-service-summary" class="selected-summary" style="display: none;"></div>
+            <div id="selected-date-summary" class="selected-summary" style="display: none;"></div></div>
+
+            <div class="form-group">
+              <label for="date-select">Select a Date</label>
+              <select class="form-control" id="date-select">
+                <option value="">-- Choose a date --</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="slots-container">Available Time Slots</label>
+              <div id="slots-container" class="slots-container">
+                <p class="text-muted" style="padding: 1rem 0;">Select a date to see available times.</p>
+              </div>
+            </div>
+
+            <div class="form-nav">
+              <button type="button" class="btn btn-secondary" data-back="1">
+                &larr; Back
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3: Contact Details -->
+          <div class="form-step hidden" id="step-contact">
+            <h3>Your Details</h3>
+
+            <div id="selected-slot-summary" class="selected-summary" style="display: none;"></div>
+
+            <div class="form-group">
+              <label for="name">Full Name *</label>
+              <input type="text" class="form-control" id="name" name="name"
+                     placeholder="John Smith" required>
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone Number *</label>
+              <input type="tel" class="form-control" id="phone" name="phone"
+                     placeholder="(555) 123-4567" required>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email Address (optional)</label>
+              <input type="email" class="form-control" id="email" name="email"
+                     placeholder="your@email.com">
+            </div>
+
+            <div class="form-group">
+              <label for="notes">Special Requests (optional)</label>
+              <textarea class="form-control" id="notes" name="notes" rows="3"
+                        placeholder="e.g. prefer longer on top, specific style, etc."></textarea>
+            </div>
+
+            <div class="form-nav">
+              <button type="button" class="btn btn-secondary" data-back="2">
+                &larr; Back
+              </button>
+              <button type="submit" class="btn btn-primary" id="submit-btn">
+                Confirm Booking
+              </button>
+            </div>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 Imran's Barber Shop. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
