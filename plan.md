@@ -10,7 +10,7 @@ Build a static website for a barber (Imran) that lets customers view haircut ser
 | Hosting | GitHub Pages (free, no server management) |
 | Form backend | FormSubmit — free, no account needed, emails form data to barber |
 | Time selection | Predefined time slots (prevents double-bookings) |
-| Services | Standard Haircut $25 / 30 min, Beard Trim $15 / 15 min, Haircut + Beard $35 / 45 min |
+| Services | Standard Haircut ₦33,000 / 30 min, Beard Trim ₦20,000 / 15 min, Haircut + Beard ₦46,500 / 45 min |
 | Schedule | Monday–Friday, 9:00 AM – 6:00 PM |
 | Customer info | Name, phone number, email, optional notes (no accounts) |
 | Config | `js/config.js` (runtime config — the source of truth), backed by `data/services.json` and `data/schedule.json` for reference |

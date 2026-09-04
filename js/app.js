@@ -131,7 +131,7 @@
         '<div class="service-card">' +
           '<div class="service-header">' +
             '<span class="service-name">' + s.name + "</span>" +
-            '<span class="service-price">$' + s.price + "</span>" +
+            '<span class="service-price">₦' + s.price + "</span>" +
           "</div>" +
           '<div class="service-duration">' + s.duration + " min</div>" +
           '<div class="service-description text-muted">' + s.description + "</div>" +
@@ -186,7 +186,7 @@
         '<div class="service-card" data-service-id="' + s.id + '">' +
           '<div class="service-header">' +
             '<span class="service-name">' + s.name + "</span>" +
-            '<span class="service-price">$' + s.price + "</span>" +
+            '<span class="service-price">₦' + s.price + "</span>" +
           "</div>" +
           '<div class="service-duration">' + s.duration + " min</div>" +
           '<div class="service-description text-muted">' + s.description + "</div>" +
@@ -243,7 +243,7 @@
       el.innerHTML =
         '<span class="summary-label">Selected:</span> ' +
         state.service.name +
-        " ($" + state.service.price + " · " + state.service.duration + " min)";
+        " (₦" + state.service.price + " · " + state.service.duration + " min)";
       el.style.display = "block";
     } else if (el) {
       el.style.display = "none";
