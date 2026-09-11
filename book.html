@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <header>
     <div class="container header-inner">
@@ -22,7 +23,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="main-content">
     <div class="container">
       <div class="booking-container">
 
@@ -34,17 +35,18 @@
           <p class="subtitle">Select a service, pick a time, and confirm your details.</p>
         </div>
 
-        <form id="booking-form" method="POST" novalidate>
+<form id="booking-form" method="POST">
           <!-- FormSubmit hidden fields -->
           <input type="hidden" name="_next" value="thank-you.html">
           <input type="hidden" name="_subject" value="New Barber Shop Booking">
-          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_captcha" value="true">
           <input type="hidden" name="service" id="form-service-name">
           <input type="hidden" name="time_slot" id="form-time-slot">
+          <input type="text" name="website" id="honeypot-website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true">
 
           <!-- Step Indicator -->
-          <div class="step-indicator">
-            <div class="step active" id="step1-indicator">
+          <div class="step-indicator" role="navigation" aria-label="Booking progress">
+            <div class="step active" id="step1-indicator" aria-current="step">
               <span class="step-number">1</span>
               <span class="step-label">Service</span>
             </div>
@@ -61,64 +63,64 @@
           </div>
 
           <!-- Step 1: Service Selection -->
-          <div class="form-step" id="step-services">
+          <div class="form-step" id="step-services" role="group" aria-label="Service selection">
             <h3>Choose a Service</h3>
             <p class="text-muted" style="margin-bottom: 1.5rem; font-size: 0.95rem;">
               Select the service you'd like to book.
             </p>
-            <div id="services-container" class="services-grid"></div>
+            <div id="services-container" class="services-grid" role="radiogroup" aria-label="Available services"></div>
           </div>
 
           <!-- Step 2: Date & Time Selection -->
-          <div class="form-step hidden" id="step-datetime">
+          <div class="form-step hidden" id="step-datetime" role="group" aria-label="Date and time selection">
             <h3>Select Date &amp; Time</h3>
 
-            <div id="selected-service-summary" class="selected-summary" style="display: none;"></div>
-            <div id="selected-date-summary" class="selected-summary" style="display: none;"></div></div>
+            <div id="selected-service-summary" class="selected-summary" style="display: none;" aria-live="polite"></div>
+            <div id="selected-date-summary" class="selected-summary" style="display: none;" aria-live="polite"></div>
 
             <div class="form-group">
               <label for="date-select">Select a Date</label>
-              <select class="form-control" id="date-select">
+              <select class="form-control" id="date-select" aria-label="Select appointment date">
                 <option value="">-- Choose a date --</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label for="slots-container">Available Time Slots</label>
-              <div id="slots-container" class="slots-container">
+              <label id="slots-label">Available Time Slots</label>
+              <div id="slots-container" class="slots-container" role="radiogroup" aria-labelledby="slots-label" aria-live="polite">
                 <p class="text-muted" style="padding: 1rem 0;">Select a date to see available times.</p>
               </div>
             </div>
 
             <div class="form-nav">
-              <button type="button" class="btn btn-secondary" data-back="1">
+              <button type="button" class="btn btn-secondary" data-back="1" aria-label="Go back to service selection">
                 &larr; Back
               </button>
             </div>
           </div>
 
           <!-- Step 3: Contact Details -->
-          <div class="form-step hidden" id="step-contact">
+          <div class="form-step hidden" id="step-contact" role="group" aria-label="Contact details">
             <h3>Your Details</h3>
 
-            <div id="selected-slot-summary" class="selected-summary" style="display: none;"></div>
+            <div id="selected-slot-summary" class="selected-summary" style="display: none;" aria-live="polite"></div>
 
             <div class="form-group">
               <label for="name">Full Name *</label>
               <input type="text" class="form-control" id="name" name="name"
-                     placeholder="John Smith" required>
+                     placeholder="John Smith" required aria-required="true" autocomplete="name">
             </div>
 
             <div class="form-group">
               <label for="phone">Phone Number *</label>
               <input type="tel" class="form-control" id="phone" name="phone"
-                     placeholder="(555) 123-4567" required>
+                     placeholder="(555) 123-4567" required aria-required="true" autocomplete="tel">
             </div>
 
             <div class="form-group">
               <label for="email">Email Address (optional)</label>
               <input type="email" class="form-control" id="email" name="email"
-                     placeholder="your@email.com">
+                     placeholder="your@email.com" autocomplete="email">
             </div>
 
             <div class="form-group">
@@ -127,12 +129,15 @@
                         placeholder="e.g. prefer longer on top, specific style, etc."></textarea>
             </div>
 
+            <div id="form-error" class="form-error" style="display:none;color:#e63946;font-size:0.9rem;margin-bottom:1rem;" role="alert"></div>
+
             <div class="form-nav">
-              <button type="button" class="btn btn-secondary" data-back="2">
+              <button type="button" class="btn btn-secondary" data-back="2" aria-label="Go back to date and time selection">
                 &larr; Back
               </button>
               <button type="submit" class="btn btn-primary" id="submit-btn">
-                Confirm Booking
+                <span id="submit-text">Confirm Booking</span>
+                <span id="submit-spinner" style="display:none;">Submitting...</span>
               </button>
             </div>
           </div>

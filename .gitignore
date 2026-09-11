@@ -15,3 +15,13 @@ yarn-error.log*
 
 # Build
 *.log
+
+# Secrets and sensitive files
+open router API key.txt
+*.key
+*.secret
+.env
+.env.local
+
+# Plans and internal docs
+.kilo/

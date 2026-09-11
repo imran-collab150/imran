@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <header>
     <div class="container header-inner">
@@ -22,7 +23,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="main-content">
     <div class="container thank-you-container">
 
       <div class="thank-you-icon">
@@ -36,6 +37,11 @@
         Your appointment request has been sent to Imran.
       </p>
 
+      <div class="booking-summary" id="booking-details">
+        <p id="thank-you-service"></p>
+        <p id="thank-you-datetime"></p>
+      </div>
+
       <div class="booking-summary">
         <p>
           I've received your booking details and will give you a call
@@ -43,7 +49,7 @@
         </p>
         <p style="margin-top: 1.5rem;">
           Need to make changes or have a question?<br>
-          Call <strong>(555) 123-4567</strong>
+          Call <strong id="thank-you-phone"></strong>
         </p>
       </div>
 

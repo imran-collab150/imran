@@ -1,9 +1,7 @@
 (function () {
   "use strict";
 
-  // ============================================================
-  // Utilities
-  // ============================================================
+  var STORAGE_KEY = "barber_booking";
 
   var DAY_NAMES = [
     "sunday", "monday", "tuesday", "wednesday",
@@ -89,37 +87,147 @@
     return slots;
   }
 
-  // ============================================================
-  // State
-  // ============================================================
+  function loadState() {
+    try {
+      var saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.warn("Failed to load booking state:", e);
+    }
+    return null;
+  }
 
-  var state = {
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.warn("Failed to save booking state:", e);
+    }
+  }
+
+  function clearState() {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.warn("Failed to clear booking state:", e);
+    }
+  }
+
+  var state = loadState() || {
     service: null,
     date: null,
     slot: null
   };
 
-  // ============================================================
-  // Initialize
-  // ============================================================
-
   function init() {
-    // Set FormSubmit endpoint on the booking form
     var form = document.getElementById("booking-form");
     if (form) {
       form.setAttribute("action", CONFIG.FORM_SUBMIT_URL);
       setupBookingPage();
     }
 
-    // Render services preview on the landing page
     if (document.getElementById("services-grid")) {
       renderServicesPreview();
     }
+
+    renderContactInfo();
+    populateThankYouPage();
+
+    if (state.service && state.date && state.slot) {
+      restoreBookingUI();
+    }
   }
 
-  // ============================================================
-  // Landing Page (index.html)
-  // ============================================================
+  function renderContactInfo() {
+    var phoneEl = document.getElementById("contact-phone");
+    var addressEl = document.getElementById("contact-address");
+    if (phoneEl && CONFIG.CONTACT) {
+      phoneEl.textContent = CONFIG.CONTACT.phone || "";
+    }
+    if (addressEl && CONFIG.CONTACT) {
+      addressEl.textContent = CONFIG.CONTACT.address || "";
+    }
+  }
+
+  function populateThankYouPage() {
+    var serviceEl = document.getElementById("thank-you-service");
+    var datetimeEl = document.getElementById("thank-you-datetime");
+    var phoneEl = document.getElementById("thank-you-phone");
+
+    if (serviceEl && state.service) {
+      serviceEl.innerHTML = "<strong>Service:</strong> " + state.service.name + " (₦" + state.service.price + ")";
+    } else if (serviceEl) {
+      serviceEl.textContent = "";
+    }
+
+    if (datetimeEl && state.date && state.slot) {
+      datetimeEl.innerHTML = "<strong>Date:</strong> " + formatDate(state.date) + " | <strong>Time:</strong> " + state.slot.display;
+    } else if (datetimeEl) {
+      datetimeEl.textContent = "";
+    }
+
+    if (phoneEl && CONFIG.CONTACT) {
+      phoneEl.textContent = CONFIG.CONTACT.phone || "";
+    }
+  }
+
+  function restoreBookingUI() {
+    if (state.service) {
+      var cards = document.querySelectorAll("#services-container .service-card");
+      for (var i = 0; i < cards.length; i++) {
+        cards[i].classList.remove("selected");
+      }
+      var selectedCard = document.querySelector(
+        '#services-container .service-card[data-service-id="' + state.service.id + '"]'
+      );
+      if (selectedCard) {
+        selectedCard.classList.add("selected");
+      }
+      var serviceNameEl = document.getElementById("form-service-name");
+      if (serviceNameEl) {
+        serviceNameEl.value = state.service.name;
+      }
+      updateServiceSummary();
+    }
+
+    if (state.date) {
+      var dateSelect = document.getElementById("date-select");
+      if (dateSelect) {
+        dateSelect.value = dateToDateInputString(state.date);
+      }
+      var dateSummary = document.getElementById("selected-date-summary");
+      if (dateSummary) {
+        dateSummary.innerHTML = '<span class="summary-label">Date:</span> ' + formatDate(state.date);
+        dateSummary.style.display = "block";
+      }
+      generateAndRenderSlots();
+    }
+
+    if (state.slot) {
+      var slotSummary = document.getElementById("selected-slot-summary");
+      if (slotSummary) {
+        slotSummary.innerHTML = '<span class="summary-label">Time:</span> ' + state.slot.display;
+        slotSummary.style.display = "block";
+      }
+      var slotInputs = document.querySelectorAll("#slots-container input[type='radio']");
+      for (var j = 0; j < slotInputs.length; j++) {
+        if (slotInputs[j].value === state.slot.value) {
+          slotInputs[j].checked = true;
+        }
+      }
+      updateSlotSummary();
+    }
+
+    if (state.service && state.date && state.slot) {
+      goToStep(3);
+    } else if (state.service && state.date) {
+      goToStep(2);
+    } else if (state.service) {
+      goToStep(2);
+    }
+  }
 
   function renderServicesPreview() {
     var container = document.getElementById("services-grid");
@@ -140,36 +248,28 @@
     container.innerHTML = html;
   }
 
-  // ============================================================
-  // Booking Page (book.html)
-  // ============================================================
-
   function setupBookingPage() {
     renderServiceCards();
     renderDateOptions();
 
-    // Date dropdown change
     var dateSelect = document.getElementById("date-select");
     if (dateSelect) {
       dateSelect.addEventListener("change", handleDateChange);
     }
 
-    // Slot selection (event delegation)
     var slotsContainer = document.getElementById("slots-container");
     if (slotsContainer) {
       slotsContainer.addEventListener("change", handleSlotChange);
     }
 
-    // Back buttons
     var backBtns = document.querySelectorAll("[data-back]");
     for (var i = 0; i < backBtns.length; i++) {
       backBtns[i].addEventListener("click", function (e) {
         var target = e.currentTarget.getAttribute("data-back");
-        goToStep(target);
+        goToStep(parseInt(target));
       });
     }
 
-    // Form submit
     var form = document.getElementById("booking-form");
     if (form) {
       form.addEventListener("submit", handleFormSubmit);
@@ -183,7 +283,7 @@
     var html = "";
     CONFIG.SERVICES.forEach(function (s) {
       html +=
-        '<div class="service-card" data-service-id="' + s.id + '">' +
+        '<div class="service-card" data-service-id="' + s.id + '" role="radio" tabindex="0" aria-checked="false" aria-label="' + s.name + ', ₦' + s.price + ', ' + s.duration + ' minutes">' +
           '<div class="service-header">' +
             '<span class="service-name">' + s.name + "</span>" +
             '<span class="service-price">₦' + s.price + "</span>" +
@@ -194,7 +294,6 @@
     });
     container.innerHTML = html;
 
-    // Attach click handlers via event delegation on container
     container.addEventListener("click", function (e) {
       var card = e.target.closest(".service-card");
       if (!card) return;
@@ -206,6 +305,21 @@
         selectService(service);
       }
     });
+
+    container.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        var card = e.target.closest(".service-card");
+        if (!card) return;
+        e.preventDefault();
+        var id = card.getAttribute("data-service-id");
+        var service = CONFIG.SERVICES.filter(function (s) {
+          return s.id === id;
+        })[0];
+        if (service) {
+          selectService(service);
+        }
+      }
+    });
   }
 
   function selectService(service) {
@@ -213,28 +327,30 @@
     state.date = null;
     state.slot = null;
 
-    // Highlight selected card
     var cards = document.querySelectorAll("#services-container .service-card");
     for (var i = 0; i < cards.length; i++) {
       cards[i].classList.remove("selected");
+      cards[i].setAttribute("aria-checked", "false");
     }
     var selectedCard = document.querySelector(
       '#services-container .service-card[data-service-id="' + service.id + '"]'
     );
     if (selectedCard) {
       selectedCard.classList.add("selected");
+      selectedCard.setAttribute("aria-checked", "true");
     }
 
-    // Populate hidden field
-    document.getElementById("form-service-name").value = service.name;
+    var serviceNameEl = document.getElementById("form-service-name");
+    if (serviceNameEl) {
+      serviceNameEl.value = service.name;
+    }
 
-    // Show step 2 and update summary
     updateServiceSummary();
     goToStep(2);
 
-    // Regenerate date options (fresh from today) and clear slots
     renderDateOptions();
     renderSlotsPlaceholder();
+    saveState();
   }
 
   function updateServiceSummary() {
@@ -265,7 +381,8 @@
     var html = "";
     for (var i = 0; i < dates.length; i++) {
       var val = dateToDateInputString(dates[i]);
-      html += '<option value="' + val + '">' + formatDate(dates[i]) + "</option>";
+      var selected = state.date && dateToDateInputString(state.date) === val ? "selected" : "";
+      html += '<option value="' + val + '" ' + selected + '>' + formatDate(dates[i]) + "</option>";
     }
     select.innerHTML = html;
   }
@@ -292,6 +409,19 @@
         summary.style.display = "block";
       }
       generateAndRenderSlots();
+    } else {
+      state.date = null;
+      state.slot = null;
+      renderSlotsPlaceholder();
+      var dateSummary = document.getElementById("selected-date-summary");
+      if (dateSummary) {
+        dateSummary.style.display = "none";
+      }
+      var slotSummary = document.getElementById("selected-slot-summary");
+      if (slotSummary) {
+        slotSummary.style.display = "none";
+      }
+      saveState();
     }
   }
 
@@ -327,17 +457,20 @@
     }
     container.innerHTML = html;
 
-    // Auto-select the first slot and advance
     var firstInput = container.querySelector("input[type='radio']");
     if (firstInput) {
       state.slot = {
         value: firstInput.value,
         display: firstInput.value
       };
-      document.getElementById("form-time-slot").value = firstInput.value;
+      var formTimeSlot = document.getElementById("form-time-slot");
+      if (formTimeSlot) {
+        formTimeSlot.value = firstInput.value;
+      }
       updateSlotSummary();
       goToStep(3);
     }
+    saveState();
   }
 
   function handleSlotChange() {
@@ -350,9 +483,13 @@
         value: selected.value,
         display: selected.value
       };
-      document.getElementById("form-time-slot").value = selected.value;
+      var formTimeSlot = document.getElementById("form-time-slot");
+      if (formTimeSlot) {
+        formTimeSlot.value = selected.value;
+      }
       updateSlotSummary();
       goToStep(3);
+      saveState();
     }
   }
 
@@ -367,10 +504,6 @@
     }
   }
 
-  // ============================================================
-  // Step Navigation
-  // ============================================================
-
   function goToStep(step) {
     var steps = [
       document.getElementById("step-services"),
@@ -384,52 +517,140 @@
       document.getElementById("step3-indicator")
     ];
 
-    // Hide all steps
     for (var i = 0; i < steps.length; i++) {
       if (steps[i]) {
         steps[i].classList.add("hidden");
+        steps[i].removeAttribute("aria-current");
       }
     }
 
-    // Show the requested step
     if (steps[step - 1]) {
       steps[step - 1].classList.remove("hidden");
+      steps[step - 1].setAttribute("aria-current", "step");
     }
 
-    // Update step indicator
     for (var j = 0; j < indicators.length; j++) {
       if (indicators[j]) {
         indicators[j].classList.remove("active");
+        indicators[j].removeAttribute("aria-current");
       }
     }
     if (indicators[step - 1]) {
       indicators[step - 1].classList.add("active");
+      indicators[step - 1].setAttribute("aria-current", "step");
     }
   }
 
-  // ============================================================
-  // Form Submission
-  // ============================================================
+  function validateForm() {
+    var nameInput = document.getElementById("name");
+    var phoneInput = document.getElementById("phone");
+    var errorEl = document.getElementById("form-error");
+
+    var name = nameInput.value.trim();
+    var phone = phoneInput.value.trim();
+
+    if (!name) {
+      showError("Please enter your full name.");
+      nameInput.focus();
+      return false;
+    }
+
+    if (!phone) {
+      showError("Please enter your phone number.");
+      phoneInput.focus();
+      return false;
+    }
+
+    if (phone.length < 7) {
+      showError("Please enter a valid phone number.");
+      phoneInput.focus();
+      return false;
+    }
+
+    var emailInput = document.getElementById("email");
+    var email = emailInput.value.trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showError("Please enter a valid email address.");
+      emailInput.focus();
+      return false;
+    }
+
+    if (errorEl) {
+      errorEl.style.display = "none";
+      errorEl.textContent = "";
+    }
+    return true;
+  }
+
+  function showError(message) {
+    var errorEl = document.getElementById("form-error");
+    if (errorEl) {
+      errorEl.textContent = message;
+      errorEl.style.display = "block";
+    }
+  }
 
   function handleFormSubmit(e) {
-    // Final check: ensure service and slot are set
+    e.preventDefault();
+
     if (!state.service || !state.slot) {
-      e.preventDefault();
-      alert("Please select a service and time slot.");
+      showError("Please select a service and time slot.");
       return;
     }
 
-    // Populate hidden fields (belt and suspenders)
+    if (!validateForm()) {
+      return;
+    }
+
+    var submitBtn = document.getElementById("submit-btn");
+    var submitText = document.getElementById("submit-text");
+    var submitSpinner = document.getElementById("submit-spinner");
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+    }
+    if (submitText) {
+      submitText.style.display = "none";
+    }
+    if (submitSpinner) {
+      submitSpinner.style.display = "inline";
+    }
+
+    var form = document.getElementById("booking-form");
+    form.setAttribute("action", CONFIG.FORM_SUBMIT_URL);
     document.getElementById("form-service-name").value = state.service.name;
     document.getElementById("form-time-slot").value = state.slot.display;
 
-    // Form will submit natively to FormSubmit endpoint
-    // FormSubmit will redirect to thank-you.html via _next hidden field
-  }
+    fetch(CONFIG.FORM_SUBMIT_URL, {
+      method: "POST",
+      body: new FormData(form),
+      headers: {
+        "Accept": "application/json"
+      }
+    })
+      .then(function (response) {
+        if (response.ok) {
+          clearState();
+          window.location.href = CONFIG.FORM_SUBMIT_URL + "?_next=thank-you.html";
+        } else {
+          throw new Error("Server responded with status: " + response.status);
+        }
+      })
+      .catch(function (err) {
+        console.error("Form submission failed:", err);
+        showError("Booking failed. Please try again or call " + (CONFIG.CONTACT ? CONFIG.CONTACT.phone : "") + ".");
 
-  // ============================================================
-  // Init
-  // ============================================================
+        if (submitBtn) {
+          submitBtn.disabled = false;
+        }
+        if (submitText) {
+          submitText.style.display = "";
+        }
+        if (submitSpinner) {
+          submitSpinner.style.display = "none";
+        }
+      });
+  }
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
