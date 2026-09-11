@@ -621,35 +621,9 @@
     document.getElementById("form-service-name").value = state.service.name;
     document.getElementById("form-time-slot").value = state.slot.display;
 
-    fetch(CONFIG.FORM_SUBMIT_URL, {
-      method: "POST",
-      body: new FormData(form),
-      headers: {
-        "Accept": "application/json"
-      }
-    })
-      .then(function (response) {
-        if (response.ok) {
-          clearState();
-          window.location.href = CONFIG.FORM_SUBMIT_URL + "?_next=thank-you.html";
-        } else {
-          throw new Error("Server responded with status: " + response.status);
-        }
-      })
-      .catch(function (err) {
-        console.error("Form submission failed:", err);
-        showError("Booking failed. Please try again or call " + (CONFIG.CONTACT ? CONFIG.CONTACT.phone : "") + ".");
-
-        if (submitBtn) {
-          submitBtn.disabled = false;
-        }
-        if (submitText) {
-          submitText.style.display = "";
-        }
-        if (submitSpinner) {
-          submitSpinner.style.display = "none";
-        }
-      });
+    // Let the form submit natively so FormSubmit handles the redirect
+    // to _next=thank-you.html. We already validated above.
+    form.submit();
   }
 
   if (document.readyState === "loading") {
