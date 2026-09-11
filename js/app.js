@@ -625,7 +625,7 @@
     };
 
     var timedOut = false;
-    var timeoutId = setTimeout(function() { timedOut = true; }, 15000);
+    var timeoutId = setTimeout(function() { timedOut = true; }, 5000);
 
     fetch(CONFIG.GOOGLE_SCRIPT_URL, {
       method: "POST",
