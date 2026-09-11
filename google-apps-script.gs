@@ -14,18 +14,20 @@ function doPost(e) {
       data.phone,
       data.email || "",
       data.service,
+      data.date,
       data.time_slot,
       data.notes || ""
     ]);
 
     var barberEmail = "imran@barbershop.com";
-    var subject = data.name + " has booked a " + data.service + " at " + data.time_slot;
+    var subject = data.name + " has booked a " + data.service + " on " + data.date + " at " + data.time_slot;
     var body = "New Booking Received\n\n" +
       "Customer: " + data.name + "\n" +
+      "Service: " + data.service + "\n" +
+      "Date: " + data.date + "\n" +
+      "Time: " + data.time_slot + "\n" +
       "Phone: " + data.phone + "\n" +
       "Email: " + (data.email || "N/A") + "\n" +
-      "Service: " + data.service + "\n" +
-      "Time Slot: " + data.time_slot + "\n" +
       "Notes: " + (data.notes || "None");
 
     MailApp.sendEmail({

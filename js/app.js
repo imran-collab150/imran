@@ -621,6 +621,7 @@
       email: document.getElementById("email").value.trim(),
       service: state.service.name,
       time_slot: state.slot.display,
+      date: state.date ? new Date(state.date).toLocaleDateString("en-US", {weekday: "long", month: "long", day: "numeric"}) : "",
       notes: document.getElementById("notes").value.trim()
     };
 
