@@ -67,5 +67,51 @@
     </div>
   </footer>
 
+  <script src="js/config.js"></script>
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var name = params.get("name");
+      var service = params.get("service");
+      var time_slot = params.get("time_slot");
+
+      var serviceEl = document.getElementById("thank-you-service");
+      var datetimeEl = document.getElementById("thank-you-datetime");
+      var phoneEl = document.getElementById("thank-you-phone");
+
+      if (serviceEl) {
+        if (name && service) {
+          var matchedService = CONFIG.SERVICES.find(function(s) { return s.name === service; });
+          serviceEl.innerHTML = "<strong>Service:</strong> " + service + " (₦" + (matchedService ? matchedService.price : "N/A") + ")";
+        } else {
+          serviceEl.textContent = "";
+        }
+      }
+
+      if (datetimeEl) {
+        if (name && service && time_slot) {
+          datetimeEl.innerHTML = "<strong>Booked by:</strong> " + name + "<br><strong>Time:</strong> " + time_slot;
+        } else {
+          var saved = localStorage.getItem("barber_booking");
+          if (saved) {
+            var state = JSON.parse(saved);
+            if (state.service && state.slot) {
+              var dateStr = state.date ? new Date(state.date).toLocaleDateString("en-US", {weekday: "short", month: "short", day: "numeric"}) : "";
+              datetimeEl.innerHTML = "<strong>Date:</strong> " + dateStr + " | <strong>Time:</strong> " + state.slot.display;
+            }
+          }
+          if (!datetimeEl.innerHTML) {
+            datetimeEl.textContent = "";
+          }
+        }
+      }
+
+      if (phoneEl && CONFIG && CONFIG.CONTACT) {
+        phoneEl.textContent = CONFIG.CONTACT.phone || "";
+      }
+
+      setTimeout(function() { try { localStorage.removeItem("barber_booking"); } catch(e) {} }, 1000);
+    })();
+  </script>
 </body>
 </html>

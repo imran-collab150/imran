@@ -36,5 +36,5 @@ var CONFIG = {
     email: "imran@barbershop.com",
     address: "123 Main Street, Your City, ST 12345"
   },
-  FORM_SUBMIT_URL: "https://formsubmit.com/imran@barbershop.com"
+  GOOGLE_SCRIPT_URL: "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec"
 };

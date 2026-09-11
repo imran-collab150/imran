@@ -124,7 +124,6 @@
   function init() {
     var form = document.getElementById("booking-form");
     if (form) {
-      form.setAttribute("action", CONFIG.FORM_SUBMIT_URL);
       setupBookingPage();
     }
 
@@ -616,14 +615,49 @@
       submitSpinner.style.display = "inline";
     }
 
-    var form = document.getElementById("booking-form");
-    form.setAttribute("action", CONFIG.FORM_SUBMIT_URL);
-    document.getElementById("form-service-name").value = state.service.name;
-    document.getElementById("form-time-slot").value = state.slot.display;
+    var payload = {
+      name: document.getElementById("name").value.trim(),
+      phone: document.getElementById("phone").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      service: state.service.name,
+      time_slot: state.slot.display,
+      notes: document.getElementById("notes").value.trim()
+    };
 
-    // Let the form submit natively so FormSubmit handles the redirect
-    // to _next=thank-you.html. We already validated above.
-    form.submit();
+    var timedOut = false;
+    var timeoutId = setTimeout(function() { timedOut = true; }, 15000);
+
+    fetch(CONFIG.GOOGLE_SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" }
+    })
+    .then(function(response) {
+      clearTimeout(timeoutId);
+      if (timedOut) throw new Error("Request timed out");
+      return response.json();
+    })
+    .then(function(data) {
+      if (data.success) {
+        var params = new URLSearchParams({
+          name: payload.name,
+          service: payload.service,
+          time_slot: payload.time_slot
+        });
+        window.location.href = "thank-you.html?" + params.toString();
+        setTimeout(function() { clearState(); }, 1000);
+      } else {
+        throw new Error(data.error || "Unknown error");
+      }
+    })
+    .catch(function(err) {
+      clearTimeout(timeoutId);
+      console.error("Submission failed:", err);
+      showError("Booking failed. Please try again or call " + (CONFIG.CONTACT ? CONFIG.CONTACT.phone : "") + ".");
+      if (submitBtn) submitBtn.disabled = false;
+      if (submitText) submitText.style.display = "";
+      if (submitSpinner) submitSpinner.style.display = "none";
+    });
   }
 
   if (document.readyState === "loading") {
